@@ -1,0 +1,32 @@
+[
+    {
+        "provider": "gemini",
+        "model_name": "gemini-2.5-pro",
+        "friendly_name": "Gemini 2.5 Pro",
+        "intelligence_score": 100,
+        "aliases": ["pro", "gemini-pro"],
+        "context_window": 1000000,
+        "max_output_tokens": 65536,
+        "max_thinking_tokens": 32768,
+        "supports_extended_thinking": true,
+        "supports_system_prompts": true,
+        "supports_streaming": true,
+        "supports_vision": true,
+        "allow_code_generation": true
+    },
+    {
+        "provider": "gemini",
+        "model_name": "gemini-2.5-flash",
+        "friendly_name": "Gemini 2.5 Flash",
+        "intelligence_score": 61,
+        "aliases": ["flash", "gemini-flash"],
+        "context_window": 1000000,
+        "max_output_tokens": 65536,
+        "max_thinking_tokens": 24576,
+        "supports_extended_thinking": true,
+        "supports_system_prompts": true,
+        "supports_streaming": true,
+        "supports_vision": true,
+        "allow_code_generation": true
+    }
+]

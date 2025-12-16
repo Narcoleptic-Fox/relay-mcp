@@ -1,0 +1,17 @@
+{
+    "name": "gemini",
+    "command": "gemini",
+    "additional_args": ["--yolo"],
+    "timeout": "5m",
+    "roles": {
+        "default": {
+            "prompt_path": "clink/default.txt"
+        },
+        "planner": {
+            "prompt_path": "clink/planner.txt"
+        },
+        "codereviewer": {
+            "prompt_path": "clink/codereviewer.txt"
+        }
+    }
+}

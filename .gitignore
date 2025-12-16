@@ -1,0 +1,34 @@
+# Binaries
+zen-mcp
+zen-mcp.exe
+zen-mcp-*
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build
+/dist/
+/coverage.out
+/coverage.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temp
+tmp/
