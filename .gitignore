@@ -1,6 +1,6 @@
 # Binaries
-relay-mcp
-relay-mcp.exe
+/relay-mcp
+/relay-mcp.exe
 relay-mcp-*
 *.exe
 *.dll
