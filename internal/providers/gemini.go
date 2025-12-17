@@ -6,14 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-const (
+	    "net/http"
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	const (
 	geminiBaseURL = "https://generativelanguage.googleapis.com/v1beta"
 )
 

@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// Build-time variables (set via ldflags)
+	    "strconv"
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// Build-time variables (set via ldflags)
 var (
 	Version   = "dev"
 	Commit    = "unknown"

@@ -4,45 +4,45 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/memory"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/providers"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools/simple"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools/workflow"
-	"github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
+    "github.com/mark3labs/mcp-go/mcp"
+    "github.com/mark3labs/mcp-go/server"
+    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools/simple"
+    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools/workflow"
 )
 
 // Server is the MCP server
 type Server struct {
-	cfg      *config.Config
-	registry *providers.Registry
-	memory   *memory.ConversationMemory
-	tools    map[string]tools.Tool
-	mcp      *server.MCPServer
+    cfg      *config.Config
+    registry *providers.Registry
+    memory   *memory.ConversationMemory
+    tools    map[string]tools.Tool
+    mcp      *server.MCPServer
 }
 
 // New creates a new MCP server
 func New(cfg *config.Config, registry *providers.Registry) *Server {
-	s := &Server{
-		cfg:      cfg,
-		registry: registry,
-		memory:   memory.New(cfg.MaxConversationTurns, cfg.ConversationTimeoutHours),
-		tools:    make(map[string]tools.Tool),
-	}
+    s := &Server{
+        cfg:      cfg,
+        registry: registry,
+        memory:   memory.New(cfg.MaxConversationTurns, cfg.ConversationTimeoutHours),
+        tools:    make(map[string]tools.Tool),
+    }
 
-	// Create MCP server
-	s.mcp = server.NewMCPServer(
-		"zen-mcp",
-		cfg.Version,
-		server.WithToolCapabilities(true),
-	)
+    // Create MCP server
+    s.mcp = server.NewMCPServer(
+        "relay-mcp",
+        cfg.Version,
+        server.WithToolCapabilities(true),
+    )
 
-	// Register tools
-	s.registerTools()
+    // Register tools
+    s.registerTools()
 
-	return s
+    return s
 }
 
 // registerTools registers all available tools

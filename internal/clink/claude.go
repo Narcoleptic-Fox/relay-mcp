@@ -2,12 +2,11 @@ package clink
 
 import (
 	"context"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-)
-
-// ClaudeAgent is a CLI agent for Claude Code
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	)
+	// ClaudeAgent is a CLI agent for Claude Code
 type ClaudeAgent struct {
 	*BaseAgent
 	parser *ClaudeParser

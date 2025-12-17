@@ -1,6 +1,6 @@
-# Zen MCP Server
+# Relay MCP Server
 
-A high-performance Model Context Protocol (MCP) server written in Go. Zen MCP provides a suite of powerful AI tools for software development, including multi-model consensus, extended reasoning, and CLI integration.
+A high-performance Model Context Protocol (MCP) server written in Go. Relay MCP provides a suite of powerful AI tools for software development, including multi-model consensus, extended reasoning, and CLI integration.
 
 ## Features
 
@@ -48,21 +48,21 @@ GEMINI_API_KEY=your-key-here
 
 ```bash
 # Build
-go build -o zen-mcp.exe ./cmd/zen-mcp
+go build -o relay-mcp.exe ./cmd/relay-mcp
 
 # Run
-./zen-mcp.exe
+./relay-mcp.exe
 ```
 
 ### Integration with Claude Code
 
-Configure Claude Code to use Zen MCP:
+Configure Claude Code to use Relay MCP:
 
 ```json
 {
   "mcpServers": {
-    "zen": {
-      "command": "/absolute/path/to/zen-mcp.exe",
+    "relay": {
+      "command": "/absolute/path/to/relay-mcp.exe",
       "args": [],
       "env": {
         "GEMINI_API_KEY": "your-key"

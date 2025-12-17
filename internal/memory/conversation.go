@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-	"github.com/google/uuid"
+    "github.com/google/uuid"
+    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
 )
 
 // ConversationMemory manages conversation threads

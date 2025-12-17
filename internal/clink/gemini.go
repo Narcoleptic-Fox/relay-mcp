@@ -2,13 +2,12 @@ package clink
 
 import (
 	"context"
-	"encoding/json"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-)
-
-// GeminiAgent is a CLI agent for Gemini CLI
+	    "encoding/json"
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	)
+	// GeminiAgent is a CLI agent for Gemini CLI
 type GeminiAgent struct {
 	*BaseAgent
 	parser *GeminiParser

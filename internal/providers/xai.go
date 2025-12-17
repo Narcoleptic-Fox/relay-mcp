@@ -1,14 +1,13 @@
 package providers
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-const xaiBaseURL = "https://api.x.ai/v1"
+	    "fmt"
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	const xaiBaseURL = "https://api.x.ai/v1"
 
 // XAIProvider implements Provider for X.AI (Grok)
 type XAIProvider struct {

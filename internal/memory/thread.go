@@ -2,12 +2,11 @@ package memory
 
 import (
 	"strings"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// ThreadBuilder helps build thread context for AI prompts
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// ThreadBuilder helps build thread context for AI prompts
 type ThreadBuilder struct {
 	thread     *types.ThreadContext
 	maxTokens  int

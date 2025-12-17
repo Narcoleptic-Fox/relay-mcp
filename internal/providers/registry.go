@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log/slog"
 	"sort"
-	"sync"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// Priority order for provider selection
+	    "sync"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// Priority order for provider selection
 var ProviderPriority = []types.ProviderType{
 	types.ProviderGemini,
 	types.ProviderOpenAI,

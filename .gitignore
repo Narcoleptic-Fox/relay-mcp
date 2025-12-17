@@ -1,7 +1,7 @@
 # Binaries
-zen-mcp
-zen-mcp.exe
-zen-mcp-*
+relay-mcp
+relay-mcp.exe
+relay-mcp-*
 *.exe
 *.dll
 *.so

@@ -1,12 +1,11 @@
 package memory
 
 import (
-	"testing"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-func TestConversationMemory_CreateThread(t *testing.T) {
+	    "testing"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	func TestConversationMemory_CreateThread(t *testing.T) {
 	mem := New(50, 3)
 
 	thread := mem.CreateThread("chat")

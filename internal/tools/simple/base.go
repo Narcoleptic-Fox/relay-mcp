@@ -1,16 +1,15 @@
 package simple
 
 import (
-	"context"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/memory"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/providers"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// BaseTool provides common functionality for simple tools
+	    "context"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// BaseTool provides common functionality for simple tools
 type BaseTool struct {
 	name        string
 	description string

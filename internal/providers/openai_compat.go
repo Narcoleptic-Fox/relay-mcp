@@ -6,13 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// OpenAICompatProvider is a base for OpenAI-compatible APIs
+	    "net/http"
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// OpenAICompatProvider is a base for OpenAI-compatible APIs
 type OpenAICompatProvider struct {
 	*BaseProvider
 	apiKey     string

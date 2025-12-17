@@ -1,14 +1,13 @@
 package providers
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-const openAIBaseURL = "https://api.openai.com/v1"
+	    "fmt"
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	const openAIBaseURL = "https://api.openai.com/v1"
 
 // OpenAIProvider implements Provider for OpenAI
 type OpenAIProvider struct {

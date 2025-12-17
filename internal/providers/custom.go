@@ -1,14 +1,13 @@
 package providers
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// CustomProvider implements Provider for local models (Ollama, vLLM, etc.)
+	    "fmt"
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// CustomProvider implements Provider for local models (Ollama, vLLM, etc.)
 type CustomProvider struct {
 	*OpenAICompatProvider
 }

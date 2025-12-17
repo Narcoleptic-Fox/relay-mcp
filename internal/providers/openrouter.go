@@ -1,14 +1,13 @@
 package providers
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-const openRouterBaseURL = "https://openrouter.ai/api/v1"
+	    "fmt"
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	const openRouterBaseURL = "https://openrouter.ai/api/v1"
 
 // OpenRouterProvider implements Provider for OpenRouter (catch-all)
 type OpenRouterProvider struct {

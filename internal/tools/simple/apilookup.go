@@ -3,15 +3,14 @@ package simple
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/memory"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/providers"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools"
-)
-
-// APILookupTool helps users find documentation and API details
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	)
+	// APILookupTool helps users find documentation and API details
 type APILookupTool struct {
 	*BaseTool
 }

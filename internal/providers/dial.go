@@ -1,14 +1,13 @@
 package providers
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// DIALProvider implements Provider for DIAL
+	    "fmt"
+	    "time"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// DIALProvider implements Provider for DIAL
 type DIALProvider struct {
 	*OpenAICompatProvider
 }

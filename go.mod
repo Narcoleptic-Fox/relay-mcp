@@ -1,4 +1,4 @@
-module github.com/Narcoleptic-Fox/zen-mcp
+module github.com/Narcoleptic-Fox/relay-mcp
 
 go 1.24.1
 

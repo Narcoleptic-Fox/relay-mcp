@@ -2,15 +2,14 @@ package simple
 
 import (
 	"context"
-	"fmt"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/providers"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools"
-)
-
-// ListModelsTool lists available models
+	    "fmt"
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	)
+	// ListModelsTool lists available models
 type ListModelsTool struct {
 	cfg      *config.Config
 	registry *providers.Registry

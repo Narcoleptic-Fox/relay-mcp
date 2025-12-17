@@ -1,12 +1,11 @@
 package clink
 
 import (
-	"context"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-)
-
-// GenericAgent is a generic CLI agent for custom CLIs
+	    "context"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	)
+	// GenericAgent is a generic CLI agent for custom CLIs
 type GenericAgent struct {
 	*BaseAgent
 }

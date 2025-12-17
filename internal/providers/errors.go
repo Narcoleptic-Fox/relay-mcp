@@ -1,12 +1,11 @@
 package providers
 
 import (
-	"fmt"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// ErrModelNotFound indicates a model wasn't found
+	    "fmt"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// ErrModelNotFound indicates a model wasn't found
 type ErrModelNotFound struct {
 	Model    string
 	Provider types.ProviderType

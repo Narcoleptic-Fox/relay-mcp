@@ -2,17 +2,16 @@ package simple
 
 import (
 	"context"
-	"fmt"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/clink"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/memory"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// ClinkTool bridges to external AI CLIs
+	    "fmt"
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/clink"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// ClinkTool bridges to external AI CLIs
 type ClinkTool struct {
 	name        string
 	description string

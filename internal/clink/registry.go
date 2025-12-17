@@ -1,12 +1,11 @@
 package clink
 
 import (
-	"sync"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-)
-
-// Registry manages CLI agents
+	    "sync"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	)
+	// Registry manages CLI agents
 type Registry struct {
 	agents map[string]Agent
 	mu     sync.RWMutex

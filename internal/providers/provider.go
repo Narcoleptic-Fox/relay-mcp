@@ -1,12 +1,11 @@
 package providers
 
 import (
-	"context"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// Provider is the interface for AI model providers
+	    "context"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// Provider is the interface for AI model providers
 type Provider interface {
 	// GetProviderType returns the provider type
 	GetProviderType() types.ProviderType

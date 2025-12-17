@@ -3,17 +3,16 @@ package workflow
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/memory"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/providers"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-)
-
-// ConsensusTool orchestrates multi-model debate and synthesis
+	    "log/slog"
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	)
+	// ConsensusTool orchestrates multi-model debate and synthesis
 type ConsensusTool struct {
 	*WorkflowTool
 }

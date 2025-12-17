@@ -4,17 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strings"
-
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/config"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/memory"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/providers"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/tools"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/types"
-	"github.com/Narcoleptic-Fox/zen-mcp/internal/utils"
-)
-
-// ChatTool handles multi-turn conversations
+	    "strings"
+	
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	    "github.com/Narcoleptic-Fox/relay-mcp/internal/utils"
+	)
+	// ChatTool handles multi-turn conversations
 type ChatTool struct {
 	*BaseTool
 }
