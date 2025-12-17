@@ -1,0 +1,22 @@
+{
+    "name": "codex",
+    "command": "codex",
+    "additional_args": [
+        "--json",
+        "--dangerously-bypass-approvals-and-sandbox",
+        "--enable",
+        "web_search_request"
+    ],
+    "timeout": "5m",
+    "roles": {
+        "default": {
+            "prompt_path": "clink/default.txt"
+        },
+        "planner": {
+            "prompt_path": "clink/planner.txt"
+        },
+        "codereviewer": {
+            "prompt_path": "clink/codereviewer.txt"
+        }
+    }
+}
