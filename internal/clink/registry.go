@@ -33,6 +33,13 @@ func NewRegistry(cfg *config.Config) (*Registry, error) {
 	return r, nil
 }
 
+// NewEmptyRegistry creates an empty registry for when initialization fails
+func NewEmptyRegistry() *Registry {
+	return &Registry{
+		agents: make(map[string]Agent),
+	}
+}
+
 func (r *Registry) createAgent(name string, clientCfg config.CLIClientConfig, cfg *config.Config) (Agent, error) {
 	switch name {
 	case "gemini":

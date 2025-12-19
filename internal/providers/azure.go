@@ -1,15 +1,30 @@
 package providers
 
 import (
-	    "fmt"
-	    "time"
-	
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
-	)
-	// AzureProvider implements Provider for Azure OpenAI
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+)
+
+const (
+	// Azure API version - using a stable, recent version
+	azureAPIVersion = "2024-02-15-preview"
+)
+
+// AzureProvider implements Provider for Azure OpenAI
 type AzureProvider struct {
-	*OpenAICompatProvider
+	*BaseProvider
+	apiKey     string
+	endpoint   string
+	httpClient *http.Client
 }
 
 // NewAzureProvider creates a new Azure provider
@@ -26,31 +41,134 @@ func NewAzureProvider(cfg *config.Config) (*AzureProvider, error) {
 		models = defaultAzureModels()
 	}
 
-	// Azure OpenAI endpoint format is specific, but usually base URL + /openai/deployments/{model}
-	// However, the standard OpenAI compatible client expects base URL.
-	// Azure is TRICKY because the model name is part of the URL path in a specific way.
-	// For simplicity, we assume the user provides the FULL base URL to the deployment if possible,
-	// OR we might need to adjust the GenerateContent method for Azure if we want full correctness.
-	// But for now, let's treat it as compatible and see.
-	// Actually, standard OpenAI client doesn't work out of the box with Azure without path rewriting.
-	// Given the constraints and the goal of "Foundation", I will implement it as a standard wrapper
-	// but note that it might need more specific logic later (like `api-key` header instead of Bearer).
-
-	// NOTE: Azure uses "api-key" header, not "Authorization: Bearer".
-	// I need to override GenerateContent or make OpenAICompatProvider more flexible.
-	// For now, I'll assume I can just instantiate it and maybe hack the header if I could,
-	// but since I can't easily modify the base provider's behavior without exposing httpClient,
-	// I will just implement a simple version or copy logic if needed.
-	// Actually, I'll just wrap OpenAICompatProvider and we might need to update OpenAICompatProvider to support custom headers.
+	// Normalize endpoint - remove trailing slash
+	endpoint := strings.TrimSuffix(cfg.AzureEndpoint, "/")
 
 	return &AzureProvider{
-		OpenAICompatProvider: NewOpenAICompatProvider(
-			types.ProviderAzure,
-			cfg.AzureAPIKey,
-			cfg.AzureEndpoint,
-			models,
-			5*time.Minute,
-		),
+		BaseProvider: NewBaseProvider(types.ProviderAzure, models),
+		apiKey:       cfg.AzureAPIKey,
+		endpoint:     endpoint,
+		httpClient: &http.Client{
+			Timeout: 5 * time.Minute,
+		},
+	}, nil
+}
+
+func (p *AzureProvider) IsConfigured() bool {
+	return p.apiKey != "" && p.endpoint != ""
+}
+
+func (p *AzureProvider) CountTokens(text string, modelName string) (int, error) {
+	// Rough estimate: 4 chars per token
+	return len(text) / 4, nil
+}
+
+// GenerateContent calls the Azure OpenAI API with proper authentication
+func (p *AzureProvider) GenerateContent(ctx context.Context, req *GenerateRequest) (*types.ModelResponse, error) {
+	modelName := p.ResolveModelName(req.Model)
+
+	// Build messages
+	messages := p.buildMessages(req)
+
+	// Build request body - Azure doesn't need "model" in body, it's in the URL
+	body := map[string]any{
+		"messages": messages,
+	}
+
+	if req.Temperature > 0 {
+		body["temperature"] = req.Temperature
+	}
+	if req.MaxOutputTokens > 0 {
+		body["max_tokens"] = req.MaxOutputTokens
+	}
+
+	// Azure-specific URL format: /openai/deployments/{deployment-name}/chat/completions?api-version={version}
+	// The deployment name in Azure typically matches the model name
+	url := fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=%s",
+		p.endpoint, modelName, azureAPIVersion)
+
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(jsonBody))
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("api-key", p.apiKey) // Azure uses api-key header, NOT Authorization: Bearer
+
+	resp, err := p.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("making request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Azure API error %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	// Parse response - Azure uses same format as OpenAI
+	var oaiResp openAIResponse
+	if err := json.Unmarshal(respBody, &oaiResp); err != nil {
+		return nil, fmt.Errorf("parsing response: %w", err)
+	}
+
+	return p.parseResponse(modelName, &oaiResp)
+}
+
+func (p *AzureProvider) buildMessages(req *GenerateRequest) []map[string]any {
+	var messages []map[string]any
+
+	// Add system prompt
+	if req.SystemPrompt != "" {
+		messages = append(messages, map[string]any{
+			"role":    "system",
+			"content": req.SystemPrompt,
+		})
+	}
+
+	// Add conversation history
+	for _, turn := range req.ConversationHistory {
+		messages = append(messages, map[string]any{
+			"role":    turn.Role,
+			"content": turn.Content,
+		})
+	}
+
+	// Add current prompt
+	messages = append(messages, map[string]any{
+		"role":    "user",
+		"content": req.Prompt,
+	})
+
+	return messages
+}
+
+func (p *AzureProvider) parseResponse(model string, resp *openAIResponse) (*types.ModelResponse, error) {
+	if len(resp.Choices) == 0 {
+		return nil, fmt.Errorf("no choices in response")
+	}
+
+	choice := resp.Choices[0]
+
+	return &types.ModelResponse{
+		Content:      choice.Message.Content,
+		Model:        model,
+		Provider:     types.ProviderAzure,
+		FinishReason: choice.FinishReason,
+		TokensUsed: types.TokenUsage{
+			PromptTokens:     resp.Usage.PromptTokens,
+			CompletionTokens: resp.Usage.CompletionTokens,
+			TotalTokens:      resp.Usage.TotalTokens,
+		},
 	}, nil
 }
 
@@ -61,6 +179,15 @@ func defaultAzureModels() []types.ModelCapabilities {
 			ModelName:         "gpt-4o",
 			FriendlyName:      "Azure GPT-4o",
 			IntelligenceScore: 90,
+			ContextWindow:     128000,
+			MaxOutputTokens:   4096,
+			SupportsStreaming: true,
+		},
+		{
+			Provider:          types.ProviderAzure,
+			ModelName:         "gpt-4o-mini",
+			FriendlyName:      "Azure GPT-4o Mini",
+			IntelligenceScore: 75,
 			ContextWindow:     128000,
 			MaxOutputTokens:   4096,
 			SupportsStreaming: true,

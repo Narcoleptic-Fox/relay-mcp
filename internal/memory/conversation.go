@@ -51,17 +51,18 @@ func (m *ConversationMemory) CreateThread(toolName string) *types.ThreadContext 
 
 // GetThread retrieves a thread by ID
 func (m *ConversationMemory) GetThread(threadID string) *types.ThreadContext {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+	m.mu.Lock() // Use write lock since we may delete expired threads
+	defer m.mu.Unlock()
 
 	thread, ok := m.threads[threadID]
 	if !ok {
 		return nil
 	}
 
-	// Check if expired
+	// Check if expired and remove from map
 	if time.Since(thread.LastUpdatedAt) > time.Duration(m.ttlHours)*time.Hour {
-		slog.Debug("thread expired", "id", threadID)
+		slog.Debug("thread expired, removing", "id", threadID)
+		delete(m.threads, threadID)
 		return nil
 	}
 

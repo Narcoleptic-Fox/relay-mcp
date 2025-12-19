@@ -95,12 +95,11 @@ func (t *ConsensusTool) Execute(ctx context.Context, args map[string]any) (*tool
 			return nil, err
 		}
 
-		        // Store proposal in thread
-		        _ = t.memory.AddTurn(thread.ThreadID, types.ConversationTurn{
-		            Role:     "user",
-		            Content:  fmt.Sprintf("Proposal: %s\n\nModels: %v", state.Step, state.Models),
-		            ToolName: t.name,
-		        })
+		// Store proposal in thread
+		t.AddTurn(thread.ThreadID, types.ConversationTurn{
+			Role:    "user",
+			Content: fmt.Sprintf("Proposal: %s\n\nModels: %v", state.Step, state.Models),
+		})
 				// Return guidance for next step
 		guidance := fmt.Sprintf(`Proposal recorded. Ready to consult %d models.
 
@@ -109,7 +108,7 @@ func (t *ConsensusTool) Execute(ctx context.Context, args map[string]any) (*tool
 
 Proceed to step 2 to start consulting models.`, len(state.Models), t.formatModels(state.Models))
 
-		return tools.NewToolResult(t.buildResponse(state, guidance)), nil
+		return tools.NewToolResult(t.buildResponse(state, guidance, 0)), nil
 	}
 
 	// Steps 2 to N: Consult models one by one
@@ -129,14 +128,15 @@ Proceed to step 2 to start consulting models.`, len(state.Models), t.formatModel
 			Response: response,
 		})
 
-		        // Save to thread
-		        _ = t.memory.AddTurn(thread.ThreadID, types.ConversationTurn{
-		            Role:     "assistant",
-		            Content:  fmt.Sprintf("[%s - %s stance]\n%s", model.Model, model.Stance, response),
-		            ToolName: t.name,
-		        })
+		// Save to thread
+		t.AddTurn(thread.ThreadID, types.ConversationTurn{
+			Role:    "assistant",
+			Content: fmt.Sprintf("[%s - %s stance]\n%s", model.Model, model.Stance, response),
+		})
 				// Check if more models to consult
-		if state.CurrentModelIndex+1 < len(state.Models) {
+		nextIndex := state.CurrentModelIndex + 1
+		if nextIndex < len(state.Models) {
+			nextModel := state.Models[nextIndex]
 			guidance := fmt.Sprintf(`## Model %d/%d: %s (%s stance)
 
 %s
@@ -148,9 +148,9 @@ Proceed to next step to consult: %s`,
 				model.Model,
 				model.Stance,
 				response,
-				state.Models[state.CurrentModelIndex+1].Model,
+				nextModel.Model,
 			)
-			return tools.NewToolResult(t.buildResponse(state, guidance)), nil
+			return tools.NewToolResult(t.buildResponse(state, guidance, nextIndex)), nil
 		}
 	}
 
@@ -160,12 +160,11 @@ Proceed to next step to consult: %s`,
 		return nil, fmt.Errorf("synthesizing: %w", err)
 	}
 
-	    // Save synthesis
-	    _ = t.memory.AddTurn(thread.ThreadID, types.ConversationTurn{
-	        Role:     "assistant",
-	        Content:  synthesis,
-	        ToolName: t.name,
-	    })
+	// Save synthesis
+	t.AddTurn(thread.ThreadID, types.ConversationTurn{
+		Role:    "assistant",
+		Content: synthesis,
+	})
 		result := fmt.Sprintf(`## Consensus Analysis Complete
 
 %s
@@ -382,12 +381,14 @@ func (t *ConsensusTool) formatModels(models []ConsensusModel) string {
 	return strings.Join(lines, "\n")
 }
 
-func (t *ConsensusTool) buildResponse(state *ConsensusState, guidance string) string {
+func (t *ConsensusTool) buildResponse(state *ConsensusState, guidance string, nextModelIndex int) string {
 	var sb strings.Builder
 
 	sb.WriteString(fmt.Sprintf("## Consensus Step %d/%d\n\n", state.StepNumber, state.TotalSteps))
 	sb.WriteString(guidance)
 	sb.WriteString(fmt.Sprintf("\n\n---\ncontinuation_id: %s", state.ContinuationID))
+	sb.WriteString(fmt.Sprintf("\ncurrent_model_index: %d", nextModelIndex))
+	sb.WriteString(fmt.Sprintf("\nmodels_consulted: %d/%d", len(state.ModelResponses), len(state.Models)))
 
 	return sb.String()
 }

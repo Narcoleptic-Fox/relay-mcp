@@ -2,15 +2,16 @@ package simple
 
 import (
 	"context"
-	    "fmt"
-	    "strings"
-	
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/clink"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
-	)
+	"fmt"
+	"log/slog"
+	"strings"
+
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/clink"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+)
 	// ClinkTool bridges to external AI CLIs
 type ClinkTool struct {
 	name        string
@@ -23,7 +24,11 @@ type ClinkTool struct {
 
 // NewClinkTool creates a new clink tool
 func NewClinkTool(cfg *config.Config, mem *memory.ConversationMemory) *ClinkTool {
-	registry, _ := clink.NewRegistry(cfg)
+	registry, err := clink.NewRegistry(cfg)
+	if err != nil {
+		slog.Error("failed to create clink registry", "error", err)
+		registry = clink.NewEmptyRegistry()
+	}
 
 	tool := &ClinkTool{
 		name: "clink",
@@ -35,18 +40,18 @@ func NewClinkTool(cfg *config.Config, mem *memory.ConversationMemory) *ClinkTool
 		schema:   tools.NewSchemaBuilder(),
 	}
 
-	// Define schema
+	// Define schema - use available CLIs or a descriptive message if none
 	availableCLIs := registry.List()
-	// If no CLIs available, we still want the schema to be valid, just empty enum
-	// But schema validation might fail if we pass empty enum.
-	// So we'll put a placeholder if empty.
 	if len(availableCLIs) == 0 {
-		availableCLIs = []string{"none_available"}
+		// No enum restriction when no CLIs available - Execute will return clear error
+		tool.schema.AddString("cli_name",
+			"CLI client name (none currently configured - please configure gemini, claude, or codex)", true)
+	} else {
+		tool.schema.AddStringEnum("cli_name", "CLI client name", availableCLIs, true)
 	}
 
 	tool.schema.
 		AddString("prompt", "User request to forward to the CLI", true).
-		AddStringEnum("cli_name", "CLI client name", availableCLIs, true).
 		AddStringEnum("role", "Role preset for the CLI", []string{"default", "planner", "codereviewer"}, false).
 		AddStringArray("absolute_file_paths", "File paths to share with the CLI", false).
 		AddStringArray("images", "Image paths for visual context", false).
@@ -60,6 +65,11 @@ func (t *ClinkTool) Description() string    { return t.description }
 func (t *ClinkTool) Schema() map[string]any { return t.schema.Build() }
 
 func (t *ClinkTool) Execute(ctx context.Context, args map[string]any) (*tools.ToolResult, error) {
+	// Check if any CLIs are available
+	if len(t.registry.List()) == 0 {
+		return tools.NewToolError("No CLI clients are configured. Please configure at least one CLI client (gemini, claude, or codex) in your configuration."), nil
+	}
+
 	parser := tools.NewArgumentParser(args)
 
 	prompt, err := parser.GetStringRequired("prompt")

@@ -134,6 +134,18 @@ func (t *WorkflowTool) GetOrCreateThread(continuationID string) (*types.ThreadCo
 	return thread, true
 }
 
+// AddTurn adds a conversation turn with error logging
+func (t *WorkflowTool) AddTurn(threadID string, turn types.ConversationTurn) {
+	turn.ToolName = t.name
+	if err := t.memory.AddTurn(threadID, turn); err != nil {
+		slog.Warn("failed to add conversation turn",
+			"threadID", threadID,
+			"tool", t.name,
+			"role", turn.Role,
+			"error", err)
+	}
+}
+
 // ConsolidateFindings merges findings from multiple steps
 func (t *WorkflowTool) ConsolidateFindings(thread *types.ThreadContext, currentFindings string) string {
 	var allFindings []string

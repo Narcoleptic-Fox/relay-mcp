@@ -1,11 +1,12 @@
 package memory
 
 import (
+	"strconv"
 	"strings"
-	    "time"
-	
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
-	)
+	"time"
+
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+)
 	// ThreadBuilder helps build thread context for AI prompts
 type ThreadBuilder struct {
 	thread     *types.ThreadContext
@@ -54,7 +55,7 @@ func (b *ThreadBuilder) BuildContextSummary() string {
 	sb.WriteString("**Thread ID:** " + b.thread.ThreadID + "\n")
 	sb.WriteString("**Started:** " + b.thread.CreatedAt.Format(time.RFC3339) + "\n")
 	sb.WriteString("**Tool:** " + b.thread.ToolName + "\n")
-	sb.WriteString("**Turns:** " + string(rune(len(b.thread.Turns))) + "\n\n")
+	sb.WriteString("**Turns:** " + strconv.Itoa(len(b.thread.Turns)) + "\n\n")
 
 	// Collect unique tools used
 	tools := make(map[string]bool)

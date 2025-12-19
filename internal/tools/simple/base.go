@@ -1,14 +1,15 @@
 package simple
 
 import (
-	    "context"
-	
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
-	)
+	"context"
+	"log/slog"
+
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+)
 	// BaseTool provides common functionality for simple tools
 type BaseTool struct {
 	name        string
@@ -56,7 +57,15 @@ func (t *BaseTool) GetProvider(modelName string) (providers.Provider, error) {
 
 // ResolveModel determines the actual model to use
 func (t *BaseTool) ResolveModel(requestedModel string) (string, providers.Provider, error) {
-	if requestedModel == "" || requestedModel == "auto" {
+	modelToUse := requestedModel
+
+	// Use config default if not specified
+	if modelToUse == "" {
+		modelToUse = t.cfg.DefaultModel
+	}
+
+	// Auto-select only if still empty or explicit "auto"
+	if modelToUse == "" || modelToUse == "auto" {
 		caps, provider, err := t.registry.SelectBestModel(providers.ModelRequirements{})
 		if err != nil {
 			return "", nil, err
@@ -64,12 +73,12 @@ func (t *BaseTool) ResolveModel(requestedModel string) (string, providers.Provid
 		return caps.ModelName, provider, nil
 	}
 
-	provider, err := t.registry.GetProviderForModel(requestedModel)
+	provider, err := t.registry.GetProviderForModel(modelToUse)
 	if err != nil {
 		return "", nil, err
 	}
 
-	return requestedModel, provider, nil
+	return modelToUse, provider, nil
 }
 
 // GetOrCreateThread gets or creates a conversation thread
@@ -86,15 +95,22 @@ func (t *BaseTool) GetOrCreateThread(continuationID string) (*types.ThreadContex
 	return thread, true
 }
 
-// AddTurn adds a conversation turn
+// AddTurn adds a conversation turn with error logging
 func (t *BaseTool) AddTurn(threadID, role, content string, files, images []string) {
-    _ = t.memory.AddTurn(threadID, types.ConversationTurn{
-        Role:     role,
-        Content:  content,
-        Files:    files,
-        Images:   images,
-        ToolName: t.name,
-    })
+	err := t.memory.AddTurn(threadID, types.ConversationTurn{
+		Role:     role,
+		Content:  content,
+		Files:    files,
+		Images:   images,
+		ToolName: t.name,
+	})
+	if err != nil {
+		slog.Warn("failed to add conversation turn",
+			"threadID", threadID,
+			"tool", t.name,
+			"role", role,
+			"error", err)
+	}
 }
 // GenerateContent calls the AI provider
 func (t *BaseTool) GenerateContent(

@@ -2,16 +2,18 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 
-    "github.com/mark3labs/mcp-go/mcp"
-    "github.com/mark3labs/mcp-go/server"
-    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
-    "github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
-    "github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
-    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
-    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools/simple"
-    "github.com/Narcoleptic-Fox/relay-mcp/internal/tools/workflow"
+	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
+
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/memory"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/providers"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/tools"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/tools/simple"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/tools/workflow"
 )
 
 // Server is the MCP server
@@ -81,14 +83,17 @@ func (s *Server) registerTool(t tools.Tool) {
 
 	s.tools[name] = t
 
-	// Register with MCP server
+	// Get the schema from the tool and convert to JSON
+	schema := t.Schema()
+	schemaJSON, err := json.Marshal(schema)
+	if err != nil {
+		slog.Error("failed to marshal tool schema", "name", name, "error", err)
+		return
+	}
+
+	// Register with MCP server using raw schema
 	s.mcp.AddTool(
-		mcp.NewTool(name,
-			mcp.WithDescription(t.Description()),
-			mcp.WithString("arguments",
-				mcp.Description("Tool arguments as JSON"),
-			),
-		),
+		mcp.NewToolWithRawSchema(name, t.Description(), schemaJSON),
 		s.handleToolCall(t),
 	)
 

@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	    "net/http"
-	    "time"
-	
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/config"
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
-	)
+	"net/http"
+	"time"
+
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/config"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/utils"
+)
 	const (
 	geminiBaseURL = "https://generativelanguage.googleapis.com/v1beta"
 )
@@ -157,14 +158,17 @@ func (p *GeminiProvider) buildContents(req *GenerateRequest) []map[string]any {
 		{"text": req.Prompt},
 	}
 
-	// Add images if present
-	for _, img := range req.Images {
-		parts = append(parts, map[string]any{
-			"inlineData": map[string]any{
-				"mimeType": "image/jpeg",
-				"data":     img,
-			},
-		})
+	// Add images if present (supports file paths, data URIs, and base64)
+	if len(req.Images) > 0 {
+		processedImages := utils.ProcessImages(req.Images)
+		for _, imgData := range processedImages {
+			parts = append(parts, map[string]any{
+				"inlineData": map[string]any{
+					"mimeType": imgData.MimeType,
+					"data":     imgData.Base64,
+				},
+			})
+		}
 	}
 
 	contents = append(contents, map[string]any{
