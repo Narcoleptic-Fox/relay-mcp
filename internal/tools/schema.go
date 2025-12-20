@@ -15,7 +15,6 @@ func NewSchemaBuilder() *SchemaBuilder {
 		schema: map[string]any{
 			"type":       "object",
 			"properties": map[string]any{},
-			"required":   []string{},
 		},
 	}
 }
@@ -28,7 +27,7 @@ func (b *SchemaBuilder) AddString(name, description string, required bool) *Sche
 		"description": description,
 	}
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
 }
@@ -42,7 +41,7 @@ func (b *SchemaBuilder) AddStringEnum(name, description string, values []string,
 		"enum":        values,
 	}
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
 }
@@ -62,7 +61,7 @@ func (b *SchemaBuilder) AddInteger(name, description string, required bool, min,
 	}
 	props[name] = prop
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
 }
@@ -82,7 +81,7 @@ func (b *SchemaBuilder) AddNumber(name, description string, required bool, min, 
 	}
 	props[name] = prop
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
 }
@@ -95,7 +94,7 @@ func (b *SchemaBuilder) AddBoolean(name, description string, required bool) *Sch
 		"description": description,
 	}
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
 }
@@ -111,7 +110,7 @@ func (b *SchemaBuilder) AddStringArray(name, description string, required bool) 
 		},
 	}
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
 }
@@ -125,7 +124,7 @@ func (b *SchemaBuilder) AddObject(name, description string, required bool, prope
 		"properties":  properties,
 	}
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
 }
@@ -142,9 +141,17 @@ func (b *SchemaBuilder) AddObjectArray(name, description string, required bool, 
 		},
 	}
 	if required {
-		b.schema["required"] = append(b.schema["required"].([]string), name)
+		b.addRequired(name)
 	}
 	return b
+}
+
+// addRequired adds a field to the required list, initializing it if needed
+func (b *SchemaBuilder) addRequired(name string) {
+	if b.schema["required"] == nil {
+		b.schema["required"] = []string{}
+	}
+	b.schema["required"] = append(b.schema["required"].([]string), name)
 }
 
 // Build returns the completed schema
