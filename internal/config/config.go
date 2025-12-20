@@ -3,13 +3,43 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
-	    "strconv"
-	    "strings"
-	
-	    "github.com/Narcoleptic-Fox/relay-mcp/internal/types"
-	)
+	"strconv"
+	"strings"
+
+	"github.com/Narcoleptic-Fox/relay-mcp/configs"
+	"github.com/Narcoleptic-Fox/relay-mcp/internal/types"
+)
+
+// getConfigDir returns the base config directory, checking multiple locations
+func getConfigDir() string {
+	// 1. Check environment variable
+	if dir := os.Getenv("RELAY_CONFIG_DIR"); dir != "" {
+		return dir
+	}
+
+	// 2. Try relative to executable
+	if exe, err := os.Executable(); err == nil {
+		exeDir := filepath.Dir(exe)
+		configDir := filepath.Join(exeDir, "configs")
+		if _, err := os.Stat(configDir); err == nil {
+			return configDir
+		}
+	}
+
+	// 3. Try current working directory
+	if cwd, err := os.Getwd(); err == nil {
+		configDir := filepath.Join(cwd, "configs")
+		if _, err := os.Stat(configDir); err == nil {
+			return configDir
+		}
+	}
+
+	// 4. Fall back to relative path (original behavior)
+	return "configs"
+}
 	// Build-time variables (set via ldflags)
 var (
 	Version   = "dev"
@@ -139,7 +169,9 @@ func Load() (*Config, error) {
 }
 
 func (c *Config) loadModelRegistries() error {
-	configDir := "configs/models"
+	baseDir := getConfigDir()
+	configDir := filepath.Join(baseDir, "models")
+	slog.Debug("loading model registries", "dir", configDir)
 
 	files := map[types.ProviderType]string{
 		types.ProviderGemini:     "gemini.json",
@@ -152,18 +184,22 @@ func (c *Config) loadModelRegistries() error {
 	}
 
 	for provider, filename := range files {
+		// Try filesystem first
 		path := filepath.Join(configDir, filename)
 		data, err := os.ReadFile(path)
 		if err != nil {
-			if os.IsNotExist(err) {
-				continue // Skip if file doesn't exist
+			// Fall back to embedded configs
+			embeddedPath := "models/" + filename
+			data, err = configs.Models.ReadFile(embeddedPath)
+			if err != nil {
+				continue // Skip if not found in either location
 			}
-			return fmt.Errorf("reading %s: %w", path, err)
+			slog.Debug("using embedded config", "file", embeddedPath)
 		}
 
 		var models []types.ModelCapabilities
 		if err := json.Unmarshal(data, &models); err != nil {
-			return fmt.Errorf("parsing %s: %w", path, err)
+			return fmt.Errorf("parsing %s: %w", filename, err)
 		}
 
 		c.ModelRegistries[provider] = models
@@ -173,30 +209,54 @@ func (c *Config) loadModelRegistries() error {
 }
 
 func (c *Config) loadCLIClients() error {
-	configDir := "configs/cli_clients"
+	baseDir := getConfigDir()
+	configDir := filepath.Join(baseDir, "cli_clients")
+	slog.Debug("loading CLI clients", "dir", configDir)
 
+	// Try filesystem first
 	entries, err := os.ReadDir(configDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil // No CLI clients configured
+	if err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+				continue
+			}
+
+			path := filepath.Join(configDir, entry.Name())
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return fmt.Errorf("reading %s: %w", path, err)
+			}
+
+			var client CLIClientConfig
+			if err := json.Unmarshal(data, &client); err != nil {
+				return fmt.Errorf("parsing %s: %w", path, err)
+			}
+
+			c.CLIClients[client.Name] = client
 		}
-		return err
+		return nil
 	}
 
-	for _, entry := range entries {
+	// Fall back to embedded configs
+	slog.Debug("using embedded CLI client configs")
+	embeddedEntries, err := configs.CLIClients.ReadDir("cli_clients")
+	if err != nil {
+		return nil // No CLI clients configured
+	}
+
+	for _, entry := range embeddedEntries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
 		}
 
-		path := filepath.Join(configDir, entry.Name())
-		data, err := os.ReadFile(path)
+		data, err := configs.CLIClients.ReadFile("cli_clients/" + entry.Name())
 		if err != nil {
-			return fmt.Errorf("reading %s: %w", path, err)
+			continue
 		}
 
 		var client CLIClientConfig
 		if err := json.Unmarshal(data, &client); err != nil {
-			return fmt.Errorf("parsing %s: %w", path, err)
+			return fmt.Errorf("parsing embedded %s: %w", entry.Name(), err)
 		}
 
 		c.CLIClients[client.Name] = client
