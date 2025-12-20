@@ -2,10 +2,11 @@
     "name": "codex",
     "command": "codex",
     "additional_args": [
+        "exec",
         "--json",
-        "--dangerously-bypass-approvals-and-sandbox",
         "--enable",
-        "web_search_request"
+        "web_search_request",
+        "--dangerously-bypass-approvals-and-sandbox"
     ],
     "timeout": "5m",
     "roles": {

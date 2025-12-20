@@ -132,13 +132,17 @@ func (b *SchemaBuilder) AddObject(name, description string, required bool, prope
 // AddObjectArray adds an array of objects
 func (b *SchemaBuilder) AddObjectArray(name, description string, required bool, itemProperties map[string]any) *SchemaBuilder {
 	props := b.schema["properties"].(map[string]any)
+	itemSchema := map[string]any{
+		"type": "object",
+	}
+	// Only add properties if non-nil (nil creates invalid "properties":null)
+	if itemProperties != nil {
+		itemSchema["properties"] = itemProperties
+	}
 	props[name] = map[string]any{
 		"type":        "array",
 		"description": description,
-		"items": map[string]any{
-			"type":       "object",
-			"properties": itemProperties,
-		},
+		"items":       itemSchema,
 	}
 	if required {
 		b.addRequired(name)
